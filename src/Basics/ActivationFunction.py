@@ -45,10 +45,7 @@ def softmax(x):
     return np.divide(sig,np.sum(sig))
     
     
-    
-
-    
-    
+# Gradient Test Code
 def grad(cost,params):
     params = [params]
     outputs = []
