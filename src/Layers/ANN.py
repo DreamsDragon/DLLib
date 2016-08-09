@@ -12,21 +12,21 @@ import numpy as np
 # Non Linearity is the activation function
 # Num_units is the number of neurons in the layer
 
-class ANN(layer):
+class ANN():
     # This is a class for a layer of perceptrons 
     # The number of neurons and initial weights and biases are given at the time of initialisation
     # An activation function object is also passed as an argument
-    def __init__(self,num_units,W = initialize_W(),b =initialize_b(),nonlinearity):
+    def __init__(self,num_units,nonlinearity,Initialise_W,Initialise_b):
         self.nonlinearity  = nonlinearity # Activation function to be used
         self.num_units = num_units # Number of perceptrons in the layer
-        self.b = b # Initial Bias 
+        self.b = Initialise_b(num_units) # Initial Bias 
     	self.input = 0 # Input vector
-    	self.W = W # Initial Weights
+    	self.W = Initialise_W(num_units) # Initial Weights
 
     #This function activates the neurons
     #That is the neuron evaluates W.X + b
     def activate(self):    
-    	return activation = np.dot(self.W,input_layer)+b
+    	return np.dot(self.W,self.input)+self.b
     
     #Gives the final output of the layer after running it through
     #the activation layer

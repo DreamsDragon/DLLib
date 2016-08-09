@@ -5,7 +5,7 @@ Created on Sat Aug  6 19:18:50 2016
 @author: sreekar
 """
 
-import theano.tensor as T
+#import theano.tensor as T
 import numpy as np
 from collections import *
 
@@ -59,11 +59,11 @@ def grad(cost,params):
     for var in known_grads:
         grad_dict[var] = known_grads[var]
 
-        
+'''        
 a = np.array([[-1,2,3],[4,-5,6],[7,8,9]])
 print T.nnet.elu(a).eval()
 print elu(a)
 print np.maximum(0,a)
-
+'''
 
 
