@@ -10,8 +10,8 @@ import numpy as np
 class Input_Layer():
 
 	def __init__(self,values):
-		self.size = values.shape
-		self.values = value
+		self.num_units = values.shape
+		self.values = values
 
 	def get_out(self):
 		return self.values

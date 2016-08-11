@@ -21,7 +21,7 @@ class ANN():
         self.num_units = num_units # Number of perceptrons in the layer
         self.b = Initialise_b((num_units,1)) # Initial Bias 
     	self.input = prev_layer.get_out() # Input vector
-    	self.W = Initialise_W((num_units,prev_layer.num_units) # Initial Weights
+    	self.W = Initialise_W((num_units,prev_layer.num_units[1])) # Initial Weights
 
     #This function activates the neurons
     #That is the neuron evaluates W.X + b
