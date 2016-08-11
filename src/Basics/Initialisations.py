@@ -7,4 +7,4 @@ import numpy as np
 
 # Randomly initialises to values between 0 and 1
 def random_initialisation(size):
-	return np.random.rand(1,size)
+	return np.random.rand(size[0],size[1])
