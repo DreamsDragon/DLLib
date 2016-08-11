@@ -5,6 +5,8 @@ Created on Sat Aug  6 19:18:50 2016
 @author: sreekar
 """
 
+# This file contains all the activations functions used by
+# the software to squach the input 
 #import theano.tensor as T
 import numpy as np
 from collections import *
