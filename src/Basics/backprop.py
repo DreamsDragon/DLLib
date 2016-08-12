@@ -14,18 +14,27 @@ class trainer():
         
     def backprop(self,error,target,output):
         grads = {}
+        no_of_layers = len(self.layers)
         if error == 'MS':
-            delta_out = np.multiply((output - target),self.layers[len(self.layers)].nonlinearity(np.dot(self.layers[len(self.layers)].W,self.layers[len(self.layers)].input) + self.layers[self.layers].b,deriv = True))
-        dWo = np.dot(self.layers['out'].input,delta_out.T)
+            delta_out = np.multiply((output - target),self.layers[no_of_layers].get_out(True))
+        dWo = np.dot(self.layers[no_of_layers].input,delta_out.T)
         dbo = delta_out
-        grads['out'] = (dWo,dbo)
+        grads[no_of_layers] = (dWo,dbo)
         delta_prev = delta_out
         for i in reversed(self.layers.keys()):
-            i = i-1
-            delta = np.multiply(np.dot(delta_prev.T,self.layers[i].W),self.layers[i].nonlinearity(np.dot(self.layers[i].W,self.layers[i].input) + self.layers[i].b,deriv = True))
-            dW = np.dot(delta,self.layers[i].input)
+            if i == no_of_layers:
+                continue
+
+            delta = np.multiply(np.dot(delta_prev.T,self.layers[i+1].W),self.layers[i].get_out(True).T)
+
+            dW = np.dot(delta.T,self.layers[i].input.T)
+
             db = delta
+
+            print db.shape
+            print self.layers[i].input.shape
             grads[i] = (dW,db)
+
             delta_prev = delta
         return grads
 

@@ -7,7 +7,7 @@ Created on Tue Aug  9 13:16:01 2016
 import collections
 # Objective Functions
 
-def sgd(gradients,parameters,learning_rate = 005):
+def sgd(gradients,parameters,learning_rate = 0.05):
     updates = collections.OrderedDict()
     for p,grad in zip(parameters,gradients):
         updates[p] = p - learning_rate*grad
