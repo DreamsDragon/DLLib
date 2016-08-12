@@ -8,9 +8,9 @@ import collections
 # Objective Functions
 
 def sgd(gradients,parameters,learning_rate = 0.05):
-    updates = collections.OrderedDict()
+    updates = dict()
     for p,grad in zip(parameters,gradients):
-        updates[p] = p - learning_rate*grad
+        updates[p] = (parameters[p][0] - learning_rate*gradients[grad][0],parameters[p][1] - learning_rate*gradients[grad][1])
     return updates
     
 

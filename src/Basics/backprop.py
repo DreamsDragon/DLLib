@@ -17,7 +17,7 @@ class trainer():
         no_of_layers = len(self.layers)
         if error == 'MS':
             delta_out = np.multiply((output - target),self.layers[no_of_layers].get_out(True))
-        dWo = np.dot(self.layers[no_of_layers].input,delta_out.T)
+        dWo = np.dot(delta_out,self.layers[no_of_layers].input.T)
         dbo = delta_out
         grads[no_of_layers] = (dWo,dbo)
         delta_prev = delta_out
@@ -25,14 +25,13 @@ class trainer():
             if i == no_of_layers:
                 continue
 
-            delta = np.multiply(np.dot(delta_prev.T,self.layers[i+1].W),self.layers[i].get_out(True).T)
+            delta = np.multiply(np.dot(self.layers[i+1].W.T,delta_prev),self.layers[i].get_out(True))
 
-            dW = np.dot(delta.T,self.layers[i].input.T)
+            dW = np.dot(delta,self.layers[i].input.T)
 
             db = delta
 
-            print db.shape
-            print self.layers[i].input.shape
+
             grads[i] = (dW,db)
 
             delta_prev = delta
