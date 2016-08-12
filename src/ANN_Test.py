@@ -19,7 +19,7 @@ np.random.seed(42)
 
 # Loading the data
 
-train,val,test = pickle.load(gzip.open('/home/sreekar/Desktop/internship/data-set/mnist.pkl.gz'))
+train,val,test = pickle.load(gzip.open('/home/dreamsd/dev/SE306/mnist.pkl.gz'))
 x_train , y_train = train
 x_val , y_val = val
 x_test , y_test = test
@@ -39,7 +39,6 @@ layer_out = ANN(Layer,62,relu,random_initialisation,random_initialisation)
 
 
 
-
 n_train_batches = len(x_train)//batch
 print n_train_batches
 n_val_batches = len(x_val)//batch
@@ -47,11 +46,13 @@ n_val_batches = len(x_val)//batch
 train_batches = batch_generation(x_train,y_train,batch)
 val_batches = batch_generation(x_val,y_val,batch)
 
-trainer_1 = trainer({1:Layer,2:layer_out})
-parameters = {1:(Layer.W,Layer.b),2:(layer_out.W,layer_out.b)}
+trainer_1 = trainer({0:layer_in,1:Layer,2:layer_out})
 
+trainer_1.give_x_y(x_train,y_train,x_val,y_val,x_test,y_test)
+
+trainer_1.start_training()
 # Running to train the network
-
+'''
 for num in range(epoch):
     train_error = 0
     val_accuracy = 0
@@ -70,8 +71,7 @@ for num in range(epoch):
             er = np.mean(error)
     train_error += er
     print 'epoch',num,'error',train_error/n_train_batches
-
-
+'''
 
 
 

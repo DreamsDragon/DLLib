@@ -10,6 +10,8 @@ import collections
 def sgd(gradients,parameters,learning_rate = 0.05):
     updates = dict()
     for p,grad in zip(parameters,gradients):
+    	if p == 0:
+    		continue
         updates[p] = (parameters[p][0] - learning_rate*gradients[grad][0],parameters[p][1] - learning_rate*gradients[grad][1])
     return updates
     
