@@ -32,7 +32,6 @@ class ANN():
         wxb = np.dot(self.W,self.input)+self.b
         self.out_val = self.nonlinearity(wxb)
         self.out_val_der = self.nonlinearity(wxb,True) 
-        return np.dot(self.W,self.input)+self.b
         
     #Gives the final output of the layer after running it through
     #the activation layer
