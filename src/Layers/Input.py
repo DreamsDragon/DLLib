@@ -14,7 +14,7 @@ class Input_Layer():
 		self.values = values
 		self.batch_size = values.shape[1]
 	def get_out(self):
-		return self.values
+		return (self.values,0)
 
 	def set_input(self,new_input):
 		self.values = new_input
