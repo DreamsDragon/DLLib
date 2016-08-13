@@ -47,7 +47,7 @@ class ANN():
     	self.nonlinearity = new_fnc
 
     def get_in(self):
-        self.input = self.prev_layer.get_out()
+        self.input = self.prev_layer.get_out()[0]
         return self.input
         
     def set_w_b(self,inp):
