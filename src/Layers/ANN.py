@@ -19,7 +19,7 @@ class ANN():
     def __init__(self,prev_layer,num_units,nonlinearity,Initialise_W,Initialise_b):
         self.nonlinearity  = nonlinearity # Activation function to be used
         self.num_units = num_units # Number of perceptrons in the layer
-        self.b = Initialise_b((num_units,64)) # Initial Bias 
+        self.b = Initialise_b((num_units,1)) # Initial Bias 
         self.input = np.zeros_like(prev_layer.num_units) # Input vector
         self.W = Initialise_W((num_units,prev_layer.num_units)) # Initial Weights
         self.prev_layer = prev_layer
@@ -28,11 +28,13 @@ class ANN():
     #This function activates the neurons
     #That is the neuron evaluates W.X + b
     def activate(self):
-        self.input = self.get_in()  
+
+
+        self.get_in()  
         wxb = np.dot(self.W,self.input)+self.b
         self.out_val = self.nonlinearity(wxb)
         self.out_val_der = self.nonlinearity(wxb,True) 
-        
+
     #Gives the final output of the layer after running it through
     #the activation layer
     def get_out(self,deriv = False):
@@ -48,7 +50,6 @@ class ANN():
 
     def get_in(self):
         self.input = self.prev_layer.get_out()[0]
-        return self.input
         
     def set_w_b(self,inp):
         self.W = inp[0]

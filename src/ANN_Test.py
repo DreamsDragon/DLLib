@@ -9,38 +9,99 @@ import numpy as np
 import pickle
 
 
-import gzip
+f = open("/home/dreamsd/dev/SE306/Data.txt",'r')
+
+x_in = []
+y_in = []
+
+for lines in f:
+    x,y = lines.split(' ')
+    x_in.append([float(x)])
+    y_in.append([float(y)])
+
+x_in = np.array(x_in)
+y_in = np.array(y_in)
+
+
+input_layer = Input_Layer(np.zeros((1,1)))
+hidden_layer_1 = ANN(input_layer,3,Prelu,random_initialisation,random_initialisation)
+output_layer = ANN(hidden_layer_1,1,Prelu,random_initialisation,random_initialisation)
+
+
+layers ={0:input_layer,1:hidden_layer_1,2:output_layer}
+anntrainer = trainer(layers)
+anntrainer.give_x_y(x_in,y_in,x_in,y_in,x_in,y_in)
+
+'''
+print "Input"
+
+print input_layer.num_units
+
+print "Hidden"
+
+print "Num units are ",hidden_layer.num_units
+print "Input is ",hidden_layer.input 
+print "W is ",hidden_layer.W 
+print "B is ",hidden_layer.b 
+print "Output is",hidden_layer.out_val 
+
+print "Output"
+
+print "Num units are ",output_layer.num_units
+print "Input is ",output_layer.input 
+print "W is ",output_layer.W 
+print "B is ",output_layer.b 
+print "Output is",output_layer.out_val 
+'''
+anntrainer.start_training()
+
+check_val = np.array([x_in[len(x_in)-1]])
+
+print "Acutal is ",y_in[len(x_in)-1]
+print anntrainer.get_result(check_val)
+
+# Loading the data
+'''
+def batch_generation(x,y,N):
+    while True:
+        idx = np.random.choice(len(y),N)
+        yield x[idx].astype('float32'),y[idx].astype('int32')
+        
+def vectorise(x,s):
+    out = []
+
+    for i in x:
+        y = []
+        for z in range(s):
+            y.append(0)
+        y[i] = i
+        out.append(y)
+    return np.array(out)
+
 
 epoch = 10
 batch = 64
-
 np.random.seed(42)
 
 
-# Loading the data
 
 train,val,test = pickle.load(gzip.open('/home/dreamsd/dev/SE306/mnist.pkl.gz'))
 x_train , y_train = train
 x_val , y_val = val
 x_test , y_test = test
 
-
-print x_train.shape
-def batch_generation(x,y,N):
-    while True:
-        idx = np.random.choice(len(y),N)
-        yield x[idx].astype('float32'),y[idx].astype('int32')
+y_train = vectorise(y_train,10)
 
 
 # Create the network
 layer_in = Input_Layer(np.zeros((784,batch)))
-Layer = ANN(layer_in,800,relu,random_initialisation,random_initialisation)
-layer_out = ANN(Layer,62,relu,random_initialisation,random_initialisation)
+Layer = ANN(layer_in,800,sigmoid,random_initialisation,random_initialisation)
+layer_out = ANN(Layer,10,sigmoid,random_initialisation,random_initialisation)
 
 
 
 n_train_batches = len(x_train)//batch
-print n_train_batches
+
 n_val_batches = len(x_val)//batch
 
 train_batches = batch_generation(x_train,y_train,batch)
@@ -52,26 +113,7 @@ trainer_1.give_x_y(x_train,y_train,x_val,y_val,x_test,y_test)
 
 trainer_1.start_training()
 # Running to train the network
-'''
-for num in range(epoch):
-    train_error = 0
-    val_accuracy = 0
-    for i in range(n_train_batches):
-            x,y = next(train_batches)
-            layer_in.set_input(x.T)
-            Layer.activate()
-            layer_out.activate()
-            output = layer_out.get_out()
-            error = 0.5*((y-output)**2)
-            epoch_accuracy = 0
-            grads = trainer_1.backprop('MS',y,output)
-            upd = sgd(grads,parameters)
-            Layer.set_w_b(upd[1])
-            layer_out.set_w_b(upd[2])
-            er = np.mean(error)
-    train_error += er
-    print 'epoch',num,'error',train_error/n_train_batches
-'''
 
+'''
 
 

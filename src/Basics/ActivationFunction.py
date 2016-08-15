@@ -23,7 +23,7 @@ def relu(x,deriv = False):
         return der
     
 # Leaky ReLu --- Leaky Rectified Linear Unit
-def Prelu(x,parameter,deriv = False):
+def Prelu(x,deriv = False,parameter=0.1):
     if not deriv:
         return np.asfarray(np.maximum(0,np.multiply(parameter,x)))
     else:
