@@ -27,7 +27,7 @@ class trainer():
     Call the start_training() method to start training the ANN 
 
     """
-    def __init__(self,layers,epoch = 100 ,batch = 1):
+    def __init__(self,layers,epoch = 100 ,batch = 64):
         self.layers = layers   #The dictionary which contains all the layer objects
         self.num_layers = len(layers)# Number of layers in the ANN
         self.parameters = {} # Weights and biases of each layer
@@ -55,23 +55,23 @@ class trainer():
         self.y_val = y_val
         self.x_test = x_test
         self.y_test = y_test
-        
+        self.n_train_batches = len(self.x_train)//self.batch
+        self.n_val_batches = len(self.x_val)//self.batch
         #self.n_train_batches = len(x_train)//self.batch
 
         #elf.n_val_batches = len(x_val)//self.batch
 
     def start_training(self):
-        #train_batches = batch_generation(self.x_train,self.y_train,self.batch)
-        #val_batches = batch_generation(self.x_val,self.y_val,self.batch)
+        train_batches = batch_generation(self.x_train,self.y_train,self.batch)
+        val_batches = batch_generation(self.x_val,self.y_val,self.batch)
 
         for epc in range(self.epoch):
             train_error = 0
             val_accuracy = 0
-            for i in range(len(self.x_train)):
-
+            for i in range(self.n_train_batches):
                 sel = i
                 #sel = random.randint(0,len(self.x_train)-1)
-                x,y = np.array([self.x_train[sel]]),np.array([self.y_train[sel]]) # To change the input size and the output size for batches modify these variables and weights and biases accordinly
+                x,y = next(train_batches)#np.array([self.x_train[sel]]),np.array([self.y_train[sel]]) # To change the input size and the output size for batches modify these variables and weights and biases accordinly
                 # Feed forward loop
                 for lyr in range(len(self.layers)):
                     if lyr == 0:
@@ -83,7 +83,7 @@ class trainer():
                 error = 0.5*((y.T-output)**2)
 
                 epoch_accuracy = 0
-                grads = sto_backprop('MS',y,output,self.layers)
+                grads = self.backprop('MS',y,output)
                 upd = sgd(grads,self.parameters)
                 for lyr in range(len(self.layers)):
                     if lyr == 0:
