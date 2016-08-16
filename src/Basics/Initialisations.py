@@ -6,5 +6,12 @@
 import numpy as np 
 
 # Randomly initialises to values between 0 and 1
-def random_initialisation(size):
-	return np.random.rand(size[0],size[1])
+def random_initialisation(size,W_b = 'W'):
+	if W_b == 'b':
+		bias = []
+		rnd = np.random.rand(size[0])
+		for i in range(size[1]):
+			bias.append(rnd)
+		return np.array(bias).T
+	else:
+		return np.random.rand(size[0],size[1])
