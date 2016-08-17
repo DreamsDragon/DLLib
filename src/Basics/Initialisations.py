@@ -9,9 +9,9 @@ import numpy as np
 def random_initialisation(size,W_b = 'W'):
 	if W_b == 'b':
 		bias = []
-		rnd = np.random.rand(size[0])
+		rnd = np.random.rand(size[0])* 0.01
 		for i in range(size[1]):
 			bias.append(rnd)
 		return np.array(bias).T
 	else:
-		return np.random.rand(size[0],size[1])
+		return np.random.rand(size[0],size[1])*0.01

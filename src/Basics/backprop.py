@@ -11,6 +11,16 @@ import gzip
 import random
 from optimizers import *
 
+def check_accuracy(y,out):
+    class_y = 0
+    acc = 0
+    for i in range(len(y)):
+        for j in range(len(y[i])):
+            if y[i][j]!=0:
+                if  np.argmax(out.T[i]) == y[i][j]:
+                    acc+=1
+                break
+    return acc
 def batch_generation(x,y,N):
     while True:
         idx = np.random.choice(len(y),N)
@@ -82,6 +92,8 @@ class trainer():
                 output = self.layers[self.num_layers-1].get_out()[0]
                 error = 0.5*((y.T-output)**2)
 
+                #print output
+
                 epoch_accuracy = 0
                 grads = self.backprop('MS',y,output)
                 upd = sgd(grads,self.parameters)
@@ -91,7 +103,8 @@ class trainer():
                     self.layers[lyr].set_w_b(upd[lyr])
                 err = np.mean(error)
                 train_error += err
-            print "epoch is ",epc," error is : ",train_error/len(self.x_train)
+                val_accuracy+=check_accuracy(y,output)
+            print "epoch is ",epc," error is : ",train_error/len(self.x_train)," accuracy is ",val_accuracy/50000.0
 
     def get_result(self,input_vec):
         for lyr in range(len(self.layers)):

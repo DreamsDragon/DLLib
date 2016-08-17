@@ -7,7 +7,7 @@ Created on Tue Aug  9 13:16:01 2016
 import collections
 # Objective Functions
 
-def sgd(gradients,parameters,learning_rate = 0.02):
+def sgd(gradients,parameters,learning_rate = 0.005):
     updates = dict()
     for p,grad in zip(parameters,gradients):
     	if p == 0:
