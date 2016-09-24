@@ -1,25 +1,12 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Aug  9 13:16:01 2016
-
-@author: sreekar
-"""
-import collections
 import random
 import numpy as np
 from Initialisations import *
-# Objective Functions
 
-def sgd(gradients,parameters,learning_rate = 0.05):
-    updates = dict()
-    for p,grad in zip(parameters,gradients):
-    	if p == 0:
-    		continue
+from joblib import Parallel, delayed
+import multiprocessing
 
-        updates[p] = (parameters[p][0] - learning_rate*gradients[grad][0],parameters[p][1] - learning_rate*gradients[grad][1])
-        parameters[p] = updates[p]
-    return updates
-    
+
+num_cores = multiprocessing.cpu_count()
 
 def init_var(fnc,pop_size,layers):
 	vals = []
@@ -53,16 +40,23 @@ def gene_mutant_vector(var,gen_no,r_fac = 0.5,ffactor =0.3):
 
 	return (total_gene_pool)
 
+def check(a,b):
+	return a*b
 #Training dataset should be a tuple with inputs as 1st element and outputs as the 2nd element
-def ftn_fnc(var,layers,dataset,div = 10):
+def ftn_fnc(var,layers,dataset):
 	train_in = dataset[0]
 	train_out = dataset[1]
 	ftn_vals = []
 	no_of_lyrs = len(layers)
-	no_of_ins = len(train_in)/div
+	no_of_ins = len(train_in)
 	pop_size = len(var)
-	for i in range(pop_size):
-		#Setting W_b_values
+	ftn_vals = Parallel(n_jobs = num_cores-1)(delayed(ftn_for_pop)(layers,var,i,train_in,train_out) for i in range(pop_size))
+	
+	return ftn_vals
+		
+def ftn_for_pop(layers,var,i,train_in,train_out):
+		no_of_lyrs = len(layers)
+		no_of_ins = len(train_in)
 		for j in range(no_of_lyrs-1):
 			(W,b) = get_W_b_mat(var[i][j])
 			layers[j+1].set_w_b((W,b))
@@ -70,10 +64,7 @@ def ftn_fnc(var,layers,dataset,div = 10):
 		ftn_val = 0
 		for inpt in range(no_of_ins):
 			ftn_val+=get_indi_err(layers,train_in[inpt],train_out[inpt])
-
-		ftn_vals.append(ftn_val)
-
-	return ftn_vals
+		return ftn_val
 
 def shuffle(dataset):
 	x = []
@@ -121,7 +112,7 @@ def get_W_b_mat(line):
 		b.append(line[i][len(line[i])-1])
 	return(W,b)	
 
-def differential_evln(layers,dataset,no_of_generations=500,pop_size=200,div = 10):
+def para_differential_evln(layers,dataset,no_of_generations=500,pop_size=200):
    	var = []
 
    	var = init_var(random_initialisation,pop_size,layers)
@@ -129,7 +120,7 @@ def differential_evln(layers,dataset,no_of_generations=500,pop_size=200,div = 10
    		var  = gene_mutant_vector(var,i)
    		if i%100 == 0:
    			dataset = shuffle(dataset)
-   		ftn_vals = ftn_fnc(var,layers,dataset,div)
+   		ftn_vals = ftn_fnc(var,layers,dataset)
    		var = my_sort(var,ftn_vals)
    		print "Generation Number is ",(i+1)," Error is ",min(ftn_vals)
    	W_b_pairs_op(var[ftn_vals.index(min(ftn_vals))],len(layers)-1,layers)

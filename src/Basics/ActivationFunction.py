@@ -23,13 +23,13 @@ def relu(x,deriv = False):
         return der
     
 # Leaky ReLu --- Leaky Rectified Linear Unit
-def Prelu(x,deriv = False,parameter=0.1):
+def Prelu(x,deriv = False,alpha=0.1):
     if not deriv:
-        return np.asfarray(np.maximum(0,np.multiply(parameter,x)))
+        return  np.asfarray(np.maximum(x,np.multiply(alpha,x)))
     else:
-        der = np.asfarray(np.maximum(0,np.multiply(parameter,x)))
+        der = np.asfarray(np.maximum(x,np.multiply(alpha,x)))
         der[der > 0] = 1
-        der[der < 0] = parameter
+        der[der<0] = alpha
         return der
 # ELU    
 def elu(x,deriv = False):
@@ -66,12 +66,37 @@ def tanh(x,deriv = False):
     if not deriv:
         return np.tanh(x)
     else:
-        1 - (np.tanh(x)**2)
+        return 1 - (np.tanh(x)**2)
 
 # Softmax
 def softmax(x,deriv = False):
-    sig = np.exp(x - np.max(x))
-    return np.divide(sig,np.sum(sig))
+    if  deriv:
+        """
+        x = x.T
+        soft = np.zeros_like(x)
+        for i in range(x.shape[0]):
+            sig = np.exp(x[i])
+            soft[i] =  np.divide(sig,np.sum(sig))
+        out = np.zeros_like(x)
+        for k in range(x.shape[0]):
+            for i in range(x.shape[1]):
+                sum1 = 0
+                for j in range(x.shape[1]):
+                    if i == j:
+                        sum1 += soft[k][i]*(1 - soft[k][i])
+                    else:
+                        sum1 += -soft[k][i]*soft[k][j]
+                out[k][i] = sum1
+        return out.T"""
+        return 1
+    else:
+        
+        x = x.T
+        for i in range(x.shape[0]):
+            sig = np.exp(x[i])
+            x[i] =  np.divide(sig,np.sum(sig))
+        return x.T
+
     
     
 # Gradient Test Code

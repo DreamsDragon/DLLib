@@ -1,0 +1,112 @@
+import xlrd
+import numpy as np
+
+def check_int(val):
+	try:
+		return float(val)
+	except:
+		return None
+def xl_cnv(path):
+	x = []
+	y = []
+
+
+
+
+
+
+	book = xlrd.open_workbook(path)
+
+	first_sheet = book.sheet_by_index(0)
+
+	rows =  first_sheet.nrows
+	cols =  first_sheet.ncols
+
+	ins = cols-1
+	outs = 1
+
+	val = int(rows*0.6)
+	train = int(rows*0.2)
+	test = rows-(val+train)
+
+
+	for i in range(0,val):
+		in_row = []
+		for j in range(ins):
+ 			cell = first_sheet.cell(i,j)
+ 			if check_int(cell.value) == None:
+ 				continue
+ 			in_row.append(check_int(cell.value))
+  		
+  		if len(in_row)!=0:
+ 			in_row = np.array(in_row)
+ 			x.append(in_row)
+ 		
+ 		out_row = []
+ 		for j in range(ins,ins+outs):
+ 			cell = first_sheet.cell(i,j)
+ 			if check_int(cell.value) == None:
+ 				continue
+ 			out_row.append(check_int(cell.value))
+ 
+  		if len(out_row)!=0:
+	 		out_row = np.array(out_row)
+	 		y.append(out_row)
+
+
+ 	x = np.array(x)
+ 	y = np.array(y)
+
+ 	return (x,y)
+
+
+def break_data(data,pers):
+
+	size = len(data)
+	split_per_1 = int(size*(pers[0]/100.0))
+	split_per_2 = int(size*(pers[1]/100.0))
+	split_per_3 = size - split_per_1 - split_per_2
+	split_data_1 = np.array(data[:split_per_1])
+	split_data_2 = np.array(data[split_per_1:split_per_1+split_per_2])
+	split_data_3 = np.array(data[split_per_1+split_per_2:split_per_1+split_per_2+split_per_3])
+
+	return (split_data_1,split_data_2,split_data_3)
+
+def get_min_max_med(array):
+	xmin = np.min(array)
+	xmax = np.max(array)
+	xmed = np.median(array)
+
+	return xmin,xmax,xmed
+
+def forawrd_sig_convert(x_data):
+	 data = []
+	 coeffs = ([],[],[])
+	 for i in range(len(x_data)):
+ 		for j in range(len(x_data[i])):
+		 	if i == 0:
+	 			data.append([])
+	 			continue
+	 		else:
+	 			data[j].append(x_data[i][j])
+
+	 for i in data:
+	 	mini,maxi,med = get_min_max_med(i)
+	 	coeffs[0].append(mini)#Minimum
+	 	coeffs[1].append(maxi)#Maximum
+	 	coeffs[2].append(med)#Median
+
+
+	 ret_data = []
+	 for i in range(len(x_data)):
+	 	normal_dat = []
+	 	for j in range(len(x_data[i])):
+	 		local_min,local_max,local_med = coeffs[0][j],coeffs[1][j],coeffs[2][j]
+	 		A = np.array([[1,local_min,local_min**2],[1,local_med,local_med**2],[1,local_max,local_max**2]])
+	 		B = np.array([-1,0,1])
+	 		[a0,a1,a2] = np.linalg.solve(A,B)
+	 		x_normal = a0+a1*(x_data[i][j])+a2*(x_data[i][j]**2)
+	 		normal_dat.append(x_normal)
+	 	ret_data.append(normal_dat)
+
+	 return ret_data

@@ -13,8 +13,12 @@ class Input_Layer():
 		self.num_units = values.shape[0]
 		self.values = values
 		self.batch_size = values.shape[1]
+		self.type = 'Inp'
 	def get_out(self):
 		return (self.values,0)
 
 	def set_input(self,new_input):
 		self.values = new_input
+
+	def get_save_array(self):
+		return (self.type,self.num_units,0,0)

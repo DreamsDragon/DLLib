@@ -37,7 +37,7 @@ class trainer():
     Call the start_training() method to start training the ANN 
 
     """
-    def __init__(self,layers,epoch = 100 ,batch = 64):
+    def __init__(self,layers,epoch = 100 ,batch = 1):
         self.layers = layers   #The dictionary which contains all the layer objects
         self.num_layers = len(layers)# Number of layers in the ANN
         self.parameters = {} # Weights and biases of each layer
@@ -71,10 +71,11 @@ class trainer():
 
         #elf.n_val_batches = len(x_val)//self.batch
 
-    def start_training(self):
+    def start_training(self,learning_rate = 0.05,division = 30):
         train_batches = batch_generation(self.x_train,self.y_train,self.batch)
         val_batches = batch_generation(self.x_val,self.y_val,self.batch)
-
+        lrate = learning_rate
+        div = division
         for epc in range(self.epoch):
             train_error = 0
             val_accuracy = 0
@@ -88,15 +89,22 @@ class trainer():
                         self.layers[lyr].set_input(x.T)
                         continue
                     self.layers[lyr].activate()
+                    #print self.layers[lyr].out_val
+                    #if lyr ==2:
+                        #print self.layers[lyr].input
                 # Feed forward ends
                 output = self.layers[self.num_layers-1].get_out()[0]
+                #if i == 1:
+                    #print output.T
                 error = 0.5*((y.T-output)**2)
 
                 #print output
 
                 epoch_accuracy = 0
                 grads = self.backprop('MS',y,output)
-                upd = sgd(grads,self.parameters)
+                if epc!=0 and epc%div == 0:
+                    lrate = lrate/10
+                upd = sgd(grads,self.parameters,lrate)
                 for lyr in range(len(self.layers)):
                     if lyr == 0:
                         continue
@@ -104,7 +112,7 @@ class trainer():
                 err = np.mean(error)
                 train_error += err
                 val_accuracy+=check_accuracy(y,output)
-            print "epoch is ",epc," error is : ",train_error/len(self.x_train)," accuracy is ",val_accuracy/50000.0
+            print "epoch is ",epc," error is : ",train_error/10000," accuracy is ",float(val_accuracy)/10000.0
 
     def get_result(self,input_vec):
         for lyr in range(len(self.layers)):
@@ -132,7 +140,7 @@ class trainer():
             if i == no_of_layers or i == 0:
                 continue
 
-            delta = np.multiply(np.dot(self.layers[i+1].W.T,delta_prev),self.layers[i].get_out()[1])
+            delta = np.multiply(np.dot(self.layers[i+1].W.T,delta_prev),self.layers[i].get_out()[1])/len(self.x_train)
 
             dW = np.dot(delta,self.layers[i].input.T)
 
