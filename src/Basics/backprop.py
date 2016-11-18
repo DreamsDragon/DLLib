@@ -10,7 +10,7 @@ import pickle
 import gzip
 import random
 from optimizers import *
-
+from Graphing import *
 def check_accuracy(y,out):
     class_y = 0
     acc = 0
@@ -25,6 +25,20 @@ def batch_generation(x,y,N):
     while True:
         idx = np.random.choice(len(y),N)
         yield x[idx].astype('float32'),y[idx].astype('int32')
+
+def get_next(x,y,batch_size,iter,nb_batches):
+
+    if iter == nb_batches - 1:
+        start = batch_size*iter
+        end = len(x)
+    else:
+        start = batch_size*iter
+        end = batch_size*(iter+1)
+
+    a = np.ndarray.tolist(x)
+    b = np.ndarray.tolist(y)
+
+    return (np.array(a[start:end]),np.array(b[start:end]))
 
 class trainer():
     """
@@ -57,6 +71,12 @@ class trainer():
         self.n_val_batches = 0
         self.epoch = epoch # Number of epochs
         self.batch = batch # Batch size
+        self.show_graph = False # To check if drawing a graph is needed
+        self.error_grapher = None # Grapher of the trainer
+        self.data_grapher = None
+
+    def set_show_graph(self,set_val = True):
+        self.show_graph = set_val
 
     def give_x_y(self,x_train,y_train,x_val,y_val,x_test,y_test):
         self.x_train = x_train
@@ -67,22 +87,50 @@ class trainer():
         self.y_test = y_test
         self.n_train_batches = len(self.x_train)//self.batch
         self.n_val_batches = len(self.x_val)//self.batch
+        np.random.shuffle(x_train)
+        np.random.shuffle(y_train)
+        
         #self.n_train_batches = len(x_train)//self.batch
 
         #elf.n_val_batches = len(x_val)//self.batch
+    def cal_validation_error(self,x_val,y_val):
+        val_error = 0
+        for i in range(len(x_val)):
+            x = np.array([x_val[i]])
+            y = np.array([y_val[i]])
+            for lyr in range(len(self.layers)):
+                if lyr == 0:
+                    self.layers[lyr].set_input(x.T)
+                    continue
+                self.layers[lyr].activate()
+                #print self.layers[lyr].out_val
+                #if lyr ==2:
+                    #print self.layers[lyr].input
+            # Feed forward ends
+            output = self.layers[self.num_layers-1].get_out()[0]
+            error = 0.5*((y.T-output)**2)            
+            err = np.mean(error)
+            val_error+=err
+        return val_error
 
-    def start_training(self,learning_rate = 0.05,division = 30):
+    def start_training(self,learning_rate = 0.5,division = 30):
         train_batches = batch_generation(self.x_train,self.y_train,self.batch)
         val_batches = batch_generation(self.x_val,self.y_val,self.batch)
         lrate = learning_rate
         div = division
+        if self.show_graph == True:
+           self.error_grapher = grapher()
+           self.error_grapher.add_line("Training Error")
+           self.error_grapher.add_line("Validation Error")
         for epc in range(self.epoch):
             train_error = 0
             val_accuracy = 0
             for i in range(self.n_train_batches):
                 sel = i
                 #sel = random.randint(0,len(self.x_train)-1)
-                x,y = next(train_batches)#np.array([self.x_train[sel]]),np.array([self.y_train[sel]]) # To change the input size and the output size for batches modify these variables and weights and biases accordinly
+                x,y = get_next(self.x_train,self.y_train,self.batch,i,self.n_train_batches)#np.array([self.x_train[sel]]),np.array([self.y_train[sel]]) # To change the input size and the output size for batches modify these variables and weights and biases accordinly
+
+                #x,y = next(train_batches)
                 # Feed forward loop
                 for lyr in range(len(self.layers)):
                     if lyr == 0:
@@ -96,11 +144,12 @@ class trainer():
                 output = self.layers[self.num_layers-1].get_out()[0]
                 #if i == 1:
                     #print output.T
+                #print y.T,output,epc
                 error = 0.5*((y.T-output)**2)
-
                 #print output
 
                 epoch_accuracy = 0
+
                 grads = self.backprop('MS',y,output)
                 if epc!=0 and epc%div == 0:
                     lrate = lrate/10
@@ -112,7 +161,11 @@ class trainer():
                 err = np.mean(error)
                 train_error += err
                 val_accuracy+=check_accuracy(y,output)
-            print "epoch is ",epc," error is : ",train_error/10000," accuracy is ",float(val_accuracy)/10000.0
+            val_error = self.cal_validation_error(self.x_val,self.y_val)
+            if self.show_graph == True:
+                self.error_grapher.update_pyl_plot((epc+1,train_error),'Training Error')
+                self.error_grapher.update_pyl_plot((epc+1,val_error),'Validation Error')
+            print "epoch is ",epc," error is : ",train_error," Validation Error is ",val_error
 
     def get_result(self,input_vec):
         for lyr in range(len(self.layers)):
@@ -140,9 +193,9 @@ class trainer():
             if i == no_of_layers or i == 0:
                 continue
 
-            delta = np.multiply(np.dot(self.layers[i+1].W.T,delta_prev),self.layers[i].get_out()[1])/len(self.x_train)
+            delta = np.multiply(np.dot(self.layers[i+1].W.T,delta_prev),self.layers[i].get_out()[1])
 
-            dW = np.dot(delta,self.layers[i].input.T)
+            dW = np.dot(delta[:np.newaxis],self.layers[i-1].get_out()[0].T)
 
             db = delta
 
@@ -156,9 +209,18 @@ class trainer():
     
  
     
-    
-    
-        
+    def backprop_book(self,error,target,output):
+        grads = {}
+        for i in reversed(self.layers.keys()):  
+            if (i == 0):
+                continue
+
+            dw = (output - target)*self.layers[i].get_out()[1]*self.layers[i].get_out()[0]
+            
+            grads[i] = (dw,dw)
+        return grads
+
+
 def sto_backprop(error,target,output,layers):   
     grads = {}
     no_of_layers = len(layers)

@@ -8,6 +8,7 @@ import collections
 import random
 import numpy as np
 from Initialisations import *
+import time
 # Objective Functions
 
 def sgd(gradients,parameters,learning_rate = 0.05):
@@ -20,6 +21,15 @@ def sgd(gradients,parameters,learning_rate = 0.05):
         parameters[p] = updates[p]
     return updates
     
+def sgd_book(gradients,parameters,learning_rate  = 0.05):
+	updates = {}
+	
+	for k in range(len(gradients)):
+		i = k+1
+
+
+		updates[i] = (parameters[i][0] - learning_rate*gradients[i][0],parameters[i][1] - learning_rate*gradients[i][1])
+	return updates
 
 def init_var(fnc,pop_size,layers):
 	vals = []
@@ -39,8 +49,8 @@ def init_var(fnc,pop_size,layers):
 def gene_mutant_vector(var,gen_no,r_fac = 0.5,ffactor =0.3):
 	total_gene_pool = []
 	pop_size = len(var)
-	for i in range(pop_size):
-		total_gene_pool.append(var[i])
+	#for i in range(pop_size):
+		#total_gene_pool.append(var[i])
 
 	for i in range(pop_size):
 
@@ -61,6 +71,8 @@ def ftn_fnc(var,layers,dataset,div = 10):
 	no_of_lyrs = len(layers)
 	no_of_ins = len(train_in)/div
 	pop_size = len(var)
+	#start_time = time.time()
+	
 	for i in range(pop_size):
 		#Setting W_b_values
 		for j in range(no_of_lyrs-1):
@@ -70,7 +82,17 @@ def ftn_fnc(var,layers,dataset,div = 10):
 		ftn_val = 0
 		for inpt in range(no_of_ins):
 			ftn_val+=get_indi_err(layers,train_in[inpt],train_out[inpt])
+			'''no_of_layers = len(layers)
 
+			for p in range(no_of_layers):
+				if p == 0:
+					layers[p].set_input(train_in[inpt])
+					continue
+				layers[p].activate()
+
+			layer_out = layers[no_of_layers-1].get_out()[0]
+			ftn_val+=abs(layer_out[0] - train_out[inpt][0]) '''
+			#print "Time taken is ",(time.time()-start_time),i
 		ftn_vals.append(ftn_val)
 
 	return ftn_vals
@@ -85,9 +107,11 @@ def shuffle(dataset):
 		data[0].append(x[i][0])
 		data[1].append(x[i][1])
 	return data
+
+#Most time consuming function try to change if possible
 def get_indi_err(layers,in_val,out):
 	no_of_layers = len(layers)
-
+	
 	for i in range(no_of_layers):
 		if i == 0:
 			layers[i].set_input(in_val)
@@ -95,6 +119,7 @@ def get_indi_err(layers,in_val,out):
 		layers[i].activate()
 
 	layer_out = layers[no_of_layers-1].get_out()[0]
+
 	return abs(out[0]-layer_out[0])#Check this part if more than one output is causing an issue
 
 def my_sort(var,ftn_vals):
@@ -104,7 +129,7 @@ def my_sort(var,ftn_vals):
 			if ftn_vals[i]<ftn_vals[j]:
 				(ftn_vals[i],ftn_vals[j]) = (ftn_vals[j],ftn_vals[i])
 				(var[i],var[j]) = (var[j],var[i])
-	return var[0:pop_size]
+	return (var[0:pop_size],ftn_vals[0:pop_size])
 
 
 def get_W_b_mat(line):
@@ -125,12 +150,16 @@ def differential_evln(layers,dataset,no_of_generations=500,pop_size=200,div = 10
    	var = []
 
    	var = init_var(random_initialisation,pop_size,layers)
-   	for i in range(no_of_generations):
-   		var  = gene_mutant_vector(var,i)
+   	old_ftn_vals = ftn_fnc(var,layers,dataset,div)
+   	for i in range(no_of_generations):	
+   		mut_var  = gene_mutant_vector(var,i)
    		if i%100 == 0:
    			dataset = shuffle(dataset)
-   		ftn_vals = ftn_fnc(var,layers,dataset,div)
-   		var = my_sort(var,ftn_vals)
+   		new_ftn_vals = ftn_fnc(mut_var,layers,dataset,div)
+   		ftn_vals = old_ftn_vals+new_ftn_vals
+   		var = np.concatenate((var,mut_var))
+   		var,old_ftn_vals = my_sort(var,ftn_vals)
+
    		print "Generation Number is ",(i+1)," Error is ",min(ftn_vals)
    	W_b_pairs_op(var[ftn_vals.index(min(ftn_vals))],len(layers)-1,layers)
 
