@@ -1,5 +1,6 @@
 import xlrd
 import numpy as np
+import Normalisation
 
 def check_int(val):
 	try:
@@ -25,9 +26,8 @@ def xl_cnv(path):
 	ins = cols-1
 	outs = 1
 
-	val = int(rows*0.6)
-	train = int(rows*0.2)
-	test = rows-(val+train)
+	val = int(rows*1)
+
 
 
 	for i in range(0,val):
@@ -40,7 +40,7 @@ def xl_cnv(path):
   		
   		if len(in_row)!=0:
  			in_row = np.array(in_row)
- 			x.append(in_row)
+ 			x.append(np.array([in_row]))
  		
  		out_row = []
  		for j in range(ins,ins+outs):
@@ -51,26 +51,21 @@ def xl_cnv(path):
  
   		if len(out_row)!=0:
 	 		out_row = np.array(out_row)
-	 		y.append(out_row)
+	 		y.append(np.array([out_row]))
 
 
- 	x = np.array(x)
- 	y = np.array(y)
 
+	for i in range(len(x))	:
+		x[i] = x[i].T 
+		y[i] = y[i].T
+
+
+	x = np.array(x)
+	y = np.array(y)
  	return (x,y)
 
 
-def break_data(data,pers):
 
-	size = len(data)
-	split_per_1 = int(size*(pers[0]/100.0))
-	split_per_2 = int(size*(pers[1]/100.0))
-	split_per_3 = size - split_per_1 - split_per_2
-	split_data_1 = np.array(data[:split_per_1])
-	split_data_2 = np.array(data[split_per_1:split_per_1+split_per_2])
-	split_data_3 = np.array(data[split_per_1+split_per_2:split_per_1+split_per_2+split_per_3])
-
-	return (split_data_1,split_data_2,split_data_3)
 
 def get_min_max_med(array):
 	xmin = np.min(array)

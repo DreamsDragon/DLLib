@@ -1,24 +1,25 @@
-#This file contain the input Layer
+"""
 
-#Input layers are common for different neural nets
+The file contains the code for Input Layer of a Neural Network
 
-#The number of neurons in the input layer depends on
-#the size of the input data 
+Author : Karunakar Gadireddy , Sreekar Kamireddy
 
-import numpy as np 
+Dated : 18 December 2016
 
-class Input_Layer():
+"""
+
+
+class Input():
+	"Class for input layer of a Neural Network"
 
 	def __init__(self,values):
-		self.num_units = values.shape[0]
-		self.values = values
-		self.batch_size = values.shape[1]
-		self.type = 'Inp'
+		self.out = values
+		self.nb_neurons = values.shape[0]
+		self.type = "Input"
+
 	def get_out(self):
-		return (self.values,0)
+		return (self.out,0)
 
-	def set_input(self,new_input):
-		self.values = new_input
-
-	def get_save_array(self):
-		return (self.type,self.num_units,0,0)
+	def set_in(self,x):
+		self.out = x
+		self.nb_neurons = x.shape[0]
