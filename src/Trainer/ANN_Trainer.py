@@ -4,17 +4,20 @@ The file contains the code for Trainer for Neural Networks
 
 Author : Karunakar Gadireddy , Sreekar Kamireddy
 
-Dated : 18 December 2016
+Dated : 18 November 2016
 
 """
+
 from Backprop import *
 from Update import *
 from Grapher.Grapher import *
+from PreProcess.Xcl_write import *
+
 
 class ANN_Trainer():
 	"""Trainer Class"""
 
-	def __init__(self,layers,nb_epc,name):
+	def __init__(self,layers,nb_epc,name,normalise = False):
 		self.net = layers #Neural Network
 		self.x_train = 0 #Training input values
 		self.y_train = 0 #Target Training Values
@@ -27,7 +30,9 @@ class ANN_Trainer():
 		self.error_grapher = 0 #Grapher to plot the error values
 		self.graph_save = False #Boolean to save the graph or no
 		self.graph_names = 0 # Graph names to save as
-		self.name = name 
+		self.name = name # Name of ANN
+
+		self.pred_test = 0 #Predicted Test Data
 
 	def show_graphs(self):	
 		self.show_graph = True
@@ -91,6 +96,7 @@ class ANN_Trainer():
 			original_outs.append(original_out)
 
 		print "Total Test Error is ",error," And the Accuray is ",accuracy/len(self.y_test)
+		self.pred_test = np.array(test_outs)
 
 		if self.graph_save == True:
 			fig = plt.figure()
@@ -157,3 +163,7 @@ class ANN_Trainer():
 			names = []
 			names[0] = self.name+"_error"
 		self.error_grapher.save(names[0])		
+
+
+	def save_output(self):
+		xl_wrt(self.name+"_Data.xls",self.x_test,self.y_test,self.pred_test)

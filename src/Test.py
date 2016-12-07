@@ -6,12 +6,12 @@ from Basics.ActivationFunction import *
 from Layers.ANN import *
 from Layers.Input import *
 from Trainer.ANN_Trainer import *
-from PreProcess.Xcl_read import *
-from PreProcess.Normalisation import *
-from PreProcess.Data_Handling import *
+from Trainer.DataManager import *
+
 
 
 name = "mpp_dataset_v1_13-inputs"
+epcs = 800
 
 '''
 f = open(name+".txt",'r')
@@ -27,56 +27,31 @@ for line in f:
 x = np.array(x_train)
 y = np.array(y_train)
 '''
-x_train,y_train  = xl_cnv(name+".xls")
-y = y_train
-x = x_train
-#y_train = (2*((y_train- min(y_train)))/(max(y_train)-min(y_train)))-1
-'''
-x = []
-y = []
 
-for i in range(1000):
-	a = random.uniform(0,10)
-	b = random.uniform(0,10)
-	c = random.uniform(0,10)
+DM = DataManager(name+".xls",13,1,normalization = "Min Max")
 
-	x.append([[a],[b],[c]])
-	y.append([[(a**2)+(b**2)-(c**2)]])
-x = np.array(x)
-y = np.array(y)
-'''
-
-x = min_max_normalisation(x)
-y = min_max_normalisation(y)
+x_data,y_data = DM.read_file() # Index 0 is train data , 1 is validation data , 2 is test data
 
 
-x_train,x_val,x_test = break_data(x,(60,30,10))
-y_train,y_val,y_test = break_data(y,(60,30,10))
+in_layer = Input(x_data[0][0])
+hidden_layer = ANN(40,sigmoid,in_layer,random_initialisation)
+hidden_layer_2 = ANN(40,sigmoid,hidden_layer,random_initialisation)
 
-#x_train,y_train  = xl_cnv("Function Data.xlsx")
-#print x_train,y_train
-
-#y_train = (2*((y_train- min(y_train)))/(max(y_train)-min(y_train)))-1
-
-in_layer = Input(x_train[0])
-hidden_layer = ANN(20,sigmoid,in_layer,random_initialisation)
-hidden_layer_2 = ANN(20,sigmoid,hidden_layer,random_initialisation)
-hidden_layer_3 = ANN(20,sigmoid,hidden_layer_2,random_initialisation)
-
-out_layer = ANN(1,tanh,hidden_layer_3,random_initialisation)
+out_layer = ANN(1,tanh,hidden_layer_2,random_initialisation)
 
 names = [name+"_error"]
-net = {0:in_layer,1:hidden_layer,2:hidden_layer_2,3:hidden_layer_3,4:out_layer}
+net = {0:in_layer,1:hidden_layer,2:hidden_layer_2,3:out_layer}
 
-trainer = ANN_Trainer(net,300,name)
-trainer.set_train_data(x_train,y_train)
-trainer.set_val_data(x_val,y_val)	
-trainer.set_test_data(x_test,y_test)
+trainer = ANN_Trainer(net,epcs,name)
+trainer.set_train_data(x_data[0],y_data[0])
+trainer.set_val_data(x_data[1],y_data[1])	
+trainer.set_test_data(x_data[2],y_data[2])
 trainer.show_graphs()
 trainer.save_graphs(names)
 trainer.train()	 
 trainer.get_test_error()
 
+trainer.save_output()
 '''
 
 test_vals = []
