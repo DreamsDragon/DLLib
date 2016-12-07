@@ -5,8 +5,9 @@ from Basics.Initialisations import *
 from Basics.ActivationFunction import *
 from Layers.ANN import *
 from Layers.Input import *
-from Trainer.ANN_Trainer import *
+from Trainer.ANN_TrainerC import *
 from Trainer.DataManager import *
+
 
 
 
@@ -31,6 +32,7 @@ y = np.array(y_train)
 DM = DataManager(name+".xls",13,1,normalization = "Min Max")
 
 x_data,y_data = DM.read_file() # Index 0 is train data , 1 is validation data , 2 is test data
+
 
 
 in_layer = Input(x_data[0][0])
