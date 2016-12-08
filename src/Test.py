@@ -5,14 +5,14 @@ from Basics.Initialisations import *
 from Basics.ActivationFunction import *
 from Layers.ANN import *
 from Layers.Input import *
-from Trainer.ANN_TrainerC import *
+from Trainer.ANN_Trainer import *
 from Trainer.DataManager import *
 
 
 
 
 name = "mpp_dataset_v1_13-inputs"
-epcs = 800
+epcs = 500
 
 '''
 f = open(name+".txt",'r')

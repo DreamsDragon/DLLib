@@ -13,10 +13,10 @@ class Cnv_Input():
 
 	def get_out(self):
 		if isinstance(self.filename,str):
-			return self.get_img_data()
+			return (self.get_img_data(),None)
 		
 		else:
-			return self.filename
+			return (self.filename,None)
 			
 
 
