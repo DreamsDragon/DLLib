@@ -12,22 +12,8 @@ from Trainer.DataManager import *
 
 
 name = "mpp_dataset_v1_13-inputs"
-epcs = 500
+epcs = 300
 
-'''
-f = open(name+".txt",'r')
-
-x_train = []
-y_train = []
-
-for line in f:
-	x,y = line.split(" ")
-	x_train.append([[float(x)]])
-	y_train.append([[float(y)]])
-
-x = np.array(x_train)
-y = np.array(y_train)
-'''
 
 DM = DataManager(name+".xls",13,1,normalization = "Min Max")
 
@@ -36,13 +22,11 @@ x_data,y_data = DM.read_file() # Index 0 is train data , 1 is validation data , 
 
 
 in_layer = Input(x_data[0][0])
-hidden_layer = ANN(40,sigmoid,in_layer,random_initialisation)
-hidden_layer_2 = ANN(40,sigmoid,hidden_layer,random_initialisation)
-
-out_layer = ANN(1,tanh,hidden_layer_2,random_initialisation)
+hidden_layer = ANN(1,tanh,in_layer,random_initialisation)
+out_layer = ANN(1,tanh,hidden_layer,random_initialisation)
 
 names = [name+"_error"]
-net = {0:in_layer,1:hidden_layer,2:hidden_layer_2,3:out_layer}
+net = {0:in_layer,1:hidden_layer,2:out_layer}
 
 trainer = ANN_Trainer(net,epcs,name)
 trainer.set_train_data(x_data[0],y_data[0])
@@ -54,6 +38,7 @@ trainer.train()
 trainer.get_test_error()
 
 trainer.save_output()
+
 '''
 
 test_vals = []

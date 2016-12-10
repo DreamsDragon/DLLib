@@ -7,7 +7,8 @@ class Cnv_Input():
 
 	def __init__(self,filename):
 		self.filename = filename
-
+		self.type = "CNN_Input"
+		
 	def give_in_file(self,new_filename):
 		self.filename = new_filename
 

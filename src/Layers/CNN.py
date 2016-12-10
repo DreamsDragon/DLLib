@@ -13,7 +13,6 @@ import numpy as np
 
 
 
-
 class CNN():
 
 	def __init__(self,filter_size,nb_filters,stride,activation_fnc,prev,init_w,padding = True):
@@ -22,6 +21,7 @@ class CNN():
 		self.stride  = stride #Stride
 		self.prev = prev #Previous Layer
 		self.w = [] # Weights
+		self.type = "CNN" # Type of this layer
 
 		for i in range(nb_filters):
 			self.w.append(init_w((filter_size[0],filter_size[1])))
@@ -31,6 +31,7 @@ class CNN():
 		self.out_der = [] #Derivative of the output of this layer
 		self.pad = padding # Boolean to see if padding is required
 		self.nb_filters = nb_filters # Number of filters in this layer
+		self.nb_neurons = 0 # Used when connecting with ANN
 
 	def padding(self):
 		
@@ -94,6 +95,7 @@ class CNN():
 			for i in range(0,row_end,self.stride):
 				wnd_out_row = []
 				wnd_der_out_row = []
+				last_j = -1
 				for j in range(0,col_end,self.stride):
 
 					for chls in range(len(self.input)):
@@ -102,9 +104,10 @@ class CNN():
 						if chls == 0:
 							wnd_out_row.append(c)
 							wnd_der_out_row.append(c)
+							last_j+=1
 						else:
-							wnd_out_row[j]+=c
-							wnd_der_out_row[j]+=c
+							wnd_out_row[last_j]+=c
+							wnd_der_out_row[last_j]+=c
 
 				wnd_out.append(self.activation_fnc(np.array(wnd_out_row)))
 				wnd_der_out.append(self.activation_fnc(np.array(wnd_der_out_row),True))
@@ -114,7 +117,7 @@ class CNN():
 		self.out_der = np.array(self.out_der)
 
 
-			
+		self.nb_neurons = self.out.shape[0] * self.out.shape[1] * self.out.shape[2]
 
 
 
