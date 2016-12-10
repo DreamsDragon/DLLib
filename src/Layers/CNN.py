@@ -78,7 +78,8 @@ class CNN():
 
 	def activate(self):
 		self.input = self.prev.get_out()[0]
-
+		self.out = []
+		self.out_der  = []
 		if self.pad == True:
 			row_end = self.input.shape[1]
 			col_end = self.input.shape[2]

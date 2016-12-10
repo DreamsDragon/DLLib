@@ -35,7 +35,6 @@ class ANN():
 			self.nb_ins = self.prev.nb_neurons+1 
 			self.w = self.init_w((self.nb_ins,self.nb_neurons)) 
 
-
 		self.input = np.ndarray.tolist(prev_out) # Getting the output of the previous layer
 
 

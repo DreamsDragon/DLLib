@@ -73,6 +73,8 @@ class Pooling():
 
 		self.input = self.prev.get_out()[0]
 
+		self.out = []
+		
 		if self.pad == True:
 			row_end = self.input.shape[1]
 			col_end = self.input.shape[2]
@@ -121,6 +123,6 @@ class Pooling():
 				for j in range(len(x[0])):
 					sum_now += x[i][j]
 			return sum_now/total
-			
+
 	def get_out(self):
 		return (self.out,None)

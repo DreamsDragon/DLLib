@@ -28,6 +28,11 @@ p1.activate()
 hd2.activate()
 fc1.activate()
 
+hd1.activate()
+p1.activate()
+hd2.activate()
+fc1.activate()
+
 print hd1.get_out()[0].shape
 print hd2.get_out()[0].shape
 print p1.get_out()[0].shape
